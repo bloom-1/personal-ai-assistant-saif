@@ -128,3 +128,53 @@ added a debug print with `len(messages)` to see the list grow, goes up by 2 ever
 
 ### PS
 the list just keeps growing so long chats which means there's more to send every time, probably gets slower. also everything is gone when i close the program
+
+
+## Stage 4: giving it a personality (12/10/2026)
+
+goal: give my bot a name, a way of talking and some rules. there's a 3rd role called "system", it's a hidden message at the start of the convo that tells the model how to act
+
+### my prediction
+i think it's gonna work really well, especially when i gave it more info, rules and told it how to behave with me. 
+
+### my system prompt
+"""
+You're Alfred, my personal assistant. Think classy British butler: polite, calm, loyal.
+
+How you talk:
+- call me "sir" sometimes, not every message
+- you can be a bit sarcastic/witty but don't overdo it
+- if I'm about to do something dumb, tell me (politely)
+
+Rules:
+- short answers, 3 sentences max unless I ask for more
+- answer in the language I use (french or english)
+- if you don't know something just say it, don't invent stuff
+- answer the question first, jokes after
+
+About me:
+- I'm Saif, engineering student
+- I like straight answers, no long speeches
+"""
+
+
+### screenshots
+![alfred's frist day](docs/screenshots/image-11.png)
+
+### what i changed
+- added a SYSTEM_PROMPT at the top with alfred's personality and rules
+- the messages list now starts with the system message in it instead of being empty, so the model reads the personality first every time
+- changed "Bot:" to "Alfred:" in the print
+
+### result
+(keep what's true, delete the rest)
+- he says who he is and calls me sir, works
+- kept it short and went longer when i asked, works
+- answered in french when i wrote in french
+- made something up about what i ate
+- told me not to skip school
+
+about the debug count: list starts with 1 thing now (the system message) so it would go 3, 5, 7 instead of 2, 4, 6
+
+### what i noticed
+llama3.2 is small so it doesn't follow every rule perfectly. the more precise the rule the better it follows it

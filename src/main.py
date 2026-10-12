@@ -1,32 +1,48 @@
 import ollama  # lets my code talk to the ollama app
 
-# the whole conversation lives in this list
-# created once before the loop so it doesn't get wiped every turn
-messages = []
+# alfred's personality, caps because it's a constant (never changes)
+SYSTEM_PROMPT = """
+You're Alfred, my personal assistant / butler : polite, calm, loyal.
 
-print("chat started, type 'quit' to exit")  # just so i know it started
+How you talk:
+- call me "sir" sometimes, not every message
+- you can be a bit sarcastic but don't overdo it
+- if I'm about to do something dumb, tell me (politely)
+
+Rules:
+- short answers, 3 sentences max unless I ask for more
+- answer in the language I use (french or english)
+- if you don't know something just say it, don't invent stuff
+- answer the question first 
+
+About me:
+- I'm Saif, engineering student
+- I like straight answers, no long speeches
+"""
+
+# the convo starts with the system message already in it
+# so the model reads the personality before anything else
+messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+print("chat started, type 'quit' to exit")  # so i know it started
 
 while True:  # loops forever until i type quit
-    user_input = input("You: ")  # shows "You: " and waits for me to type
+    user_input = input("You: ")  # waits for me to type
 
-    if user_input.lower() == "quit":  # lower() so QUIT or Quit also work
-        print("bye!")  
-        break  
+    if user_input.lower() == "quit":  # lower() so QUIT works too
+        print("bye!")
+        break  # exits the loop
 
-    # add my message at the end of the conversation
-    # role "user" = me talking
+    # add my message to the convo
     messages.append({"role": "user", "content": user_input})
 
-    # send the whole conversation to the model, not just my last message
-    # it waits here until the model is done answering
+    # send everything (personality + whole convo) to the model
     response = ollama.chat(model="llama3.2", messages=messages)
 
-    # the answer is nested: response -> message -> content
-    # i put it in a variable because i need it twice below
+    # dig into the answer to get just the text
     reply = response["message"]["content"]
 
-    # add the bot's answer to the conversation too
-    # role "assistant" = the bot, otherwise it won't know what it said before
+    # save alfred's answer so he remembers what he said
     messages.append({"role": "assistant", "content": reply})
 
-    print("Bot:", reply)  # show the answer in the terminal
+    print("Alfred:", reply)  # show the answer
