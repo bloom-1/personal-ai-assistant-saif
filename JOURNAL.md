@@ -101,3 +101,30 @@ nope, didn't remember my name. so i was wrong
 turns out the model has zero memory. every loop i'm creating a new `messages` list with just what i typed, so when i asked "what's my name?" that's literally the only thing it got. it never saw the first message
 
 so chatgpt and claude don't really "remember" either, the app just sends the whole conversation again every time. gonna do that next
+
+## Stage 3: giving it memory (12/10/2026)
+
+goal: make it remember the conversation. idea is to keep one list with every message (mine and the bot's) and send the whole thing each time
+
+### my prediction
+should remember my name now since it'll see the whole conversation every time
+
+
+### screenshots
+![main code](docs/screenshots/image-8.png)
+![ollama with memory](docs/screenshots/image-9.png)
+![number of messages in memory](docs/screenshots/image-10.png)
+
+
+### what i changed
+- moved `messages = []` before the loop so it's created once and doesn't get wiped every turn
+- `append` my message, send the whole list, then `append` the bot's answer too
+- role "assistant" is the bot's messages, so it knows who said what
+
+### result
+it remembers now. asked my name and the first thing i said and it got both
+
+added a debug print with `len(messages)` to see the list grow, goes up by 2 every turn (my message + its answer). removed it after
+
+### PS
+the list just keeps growing so long chats which means there's more to send every time, probably gets slower. also everything is gone when i close the program
