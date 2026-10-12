@@ -76,3 +76,28 @@ same name, two different things, confused me at first
 - if something weird happens, check instead of guessing
 
 
+## Stage 2: chat loop (12/10/2026)
+
+goal: being able to chat back and forth in the terminal instead of sending just one message. it should keep going until i type quit
+
+### my prediction before testing
+if i tell it my name and then ask what my name is, i think it'll remember since it's the same conversation
+
+### what i did 
+- replaced the code with a `while True` loop 
+- `input("You: ")` waits for me to type
+- if i type quit it prints bye and `break` gets out of the loop
+- `.lower()` so it works even if i type QUIT
+
+### screenshots
+![ollama new code test](docs/screenshots/image-5.png)
+![name test](docs/screenshots/image-6.png)
+![quit test](docs/screenshots/image-7.png)
+
+### result
+nope, didn't remember my name. so i was wrong
+
+### why
+turns out the model has zero memory. every loop i'm creating a new `messages` list with just what i typed, so when i asked "what's my name?" that's literally the only thing it got. it never saw the first message
+
+so chatgpt and claude don't really "remember" either, the app just sends the whole conversation again every time. gonna do that next
