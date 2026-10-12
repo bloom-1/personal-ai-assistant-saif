@@ -34,8 +34,6 @@ Wasn't sure if docs/ and .vscode/ go inside .venv or not. Answer: outside, at th
 - venv = a separate box of libraries for each project so they don't mess with each other
 - .gitignore keeps the venv and later my API key (.env) off GitHub
 - Every new terminal starts in ~ with the venv off, so I need `cd` + `source .venv/bin/activate` each time
-- When a command fails: check where I am (`pwd`), what's there (`ls`), and actually read the error
-
 
 ## Stage 1: first message to the AI (12/10/2026)
 
@@ -71,9 +69,6 @@ same name, two different things, confused me at first
 ### what i learned
 - test each part alone before putting them together
 - the library talks, the app does the work
-- closing a window doesn't mean the program stopped
-- python errors: read the last line first, then look for the lines with my files
-- if something weird happens, check instead of guessing
 
 
 ## Stage 2: chat loop (12/10/2026)
@@ -102,6 +97,10 @@ turns out the model has zero memory. every loop i'm creating a new `messages` li
 
 so chatgpt and claude don't really "remember" either, the app just sends the whole conversation again every time. gonna do that next
 
+### problems
+- nothing broke in the code itself, it ran first try
+- the "problem" was my prediction, i thought it'd remember my name and it didn't. explained in the result part
+
 ## Stage 3: giving it memory (12/10/2026)
 
 goal: make it remember the conversation. idea is to keep one list with every message (mine and the bot's) and send the whole thing each time
@@ -129,6 +128,9 @@ added a debug print with `len(messages)` to see the list grow, goes up by 2 ever
 ### PS
 the list just keeps growing so long chats which means there's more to send every time, probably gets slower. also everything is gone when i close the program
 
+### problems
+- added the debug print but couldn't see it when running. it has to be inside the loop, right under `print("Bot:", reply)` with the exact same indentation, otherwise it doesn't run every turn. moved it and the count showed up
+- learned to look at the vertical lines in vs code to see which block a line belongs to
 
 ## Stage 4: giving it a personality (12/10/2026)
 
@@ -180,8 +182,39 @@ about the debug count: list starts with 1 thing now (the system message) so it w
 llama3.2 is small so it doesn't follow every rule perfectly. the more precise the rule the better it follows it
 
 ### hallucination
-asked "what did i eat today" and he just made something up even though my rule says don't invent stuff. that's called a hallucination, the model predicts words that sound right, it doesn't actually know that it doesn't know
+asked "what did i eat today" and he just made something up even though my rule says don't invent stuff. that's called a hallucination, the model predicts words that sound right, it doesn't actually know that it doesn't know changed the rule to be more specific: told him he only knows what i say in the chat and to say he doesn't know if i never told him after the change he said he didn't know.
 
-changed the rule to be more specific: told him he only knows what i say in the chat and to say he doesn't know if i never told him
+### problems
+- first version of the system prompt was too clean and didn't sound like me, rewrote it my way but kept the precise rules like "3 sentences max"
+- asked "what did i eat today" and he made something up even though the rules said not to (more in the hallucination part)
 
-after the change he said he didn't know.
+
+## Stage 5: private info file (12/10/2026)
+
+goal: give alfred personal info about me without putting it on github. the "about me" part is in main.py right now and my repo is public so anyone can read it. moving it to a separate file that git ignores
+
+
+### screenshots
+![new data folder](docs/screenshots/image-12.png)
+![protected info](docs/screenshots/image-13.png)
+![code with my protected info](docs/screenshots/image-14.png)
+![testing main](docs/screenshots/image-15.png)
+![error message](docs/screenshots/image-16.png)
+
+### what i did
+- moved the "about me" part out of main.py into data/about_me.txt
+- added data/about_me.txt to .gitignore so it stays on my mac
+- made about_me.example.txt with fake info, that one goes on github so people know what the file should look like
+- the code reads the file at the start with `open()` and sticks it at the end of the system prompt
+
+### result
+alfred knows the stuff from my file now, and source control doesn't show about_me.txt so it's not going on github
+
+renamed the file to see what happens if it's missing: FileNotFoundError: [Errno 2] No such file or directory: 'data/about_me_of.txt'. makes sense, the code tries to open a file that's not there
+
+### stuff i learned
+- public code, private data. same idea as .env for api keys
+
+### problems
+- nothing broke this time
+
