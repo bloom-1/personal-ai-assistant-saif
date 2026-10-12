@@ -178,3 +178,10 @@ about the debug count: list starts with 1 thing now (the system message) so it w
 
 ### what i noticed
 llama3.2 is small so it doesn't follow every rule perfectly. the more precise the rule the better it follows it
+
+### hallucination
+asked "what did i eat today" and he just made something up even though my rule says don't invent stuff. that's called a hallucination, the model predicts words that sound right, it doesn't actually know that it doesn't know
+
+changed the rule to be more specific: told him he only knows what i say in the chat and to say he doesn't know if i never told him
+
+after the change he said he didn't know.
