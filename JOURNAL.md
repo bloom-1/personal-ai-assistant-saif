@@ -271,3 +271,18 @@ the first time it will tell me that there are 0 or X old messages, i will test i
 
 ### bigger model test
 - tried llama3.1:8b (8 billion parameters) instead of llama3.2 (3 billion). with 16gb of ram my mac handles it fine, answers come in like 3 seconds max changed only the model, same test as before so it's a fair comparison. the 8b one is just better overall, follows the rules and the convo better. keeping it also put the model name in a constant at the top OLLA so switching models is one line now
+
+
+
+### Stage 6 : chat interface in the browser (13/10/2026)
+
+goal: chat with alfred in a real web page instead of the terminal. using streamlit, it turns a python script into a web page so no html/css needed. keeping main.py for the terminal version and making a new app.py for the web one
+
+picked streamlit because it's pure python and has chat stuff built in. other options were gradio, flask/fastapi with html/js (more control but takes time to code) or a telegram bot. might do a fastapi version later
+
+
+### problems
+- `pip install streamlit` crashed on pyarrow. in the log: `pyarrow!=25.0.0,<26` from streamlit, so streamlit only accepts pyarrow below 26. but only pyarrow 26 has a pre-built version for python 3.15. pip took 25.0.1, which only exists as source code (.tar.gz instead of .whl) for 3.15, tried to compile it and failed
+- fixed it by switching the project to python 3.14: committed first to be safe, deleted .venv, made a new one with python3.14, reinstalled everything with `pip install -r requirements.txt`. my code didn't change at all
+- lesson: newest python isn't always the best choice, libraries need time to catch up. and read the dependency lines in the log, the answer wasn't in the big error at the bottom
+- after that alfred took ~5s instead of 3 for the first answer. not python's fault, ollama unloads the model from ram when it's not used for a while, so it has to load it again
