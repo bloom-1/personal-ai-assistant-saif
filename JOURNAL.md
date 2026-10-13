@@ -208,9 +208,7 @@ goal: give alfred personal info about me without putting it on github. the "abou
 - the code reads the file at the start with `open()` and sticks it at the end of the system prompt
 
 ### result
-alfred knows the stuff from my file now, and source control doesn't show about_me.txt so it's not going on github
-
-renamed the file to see what happens if it's missing: FileNotFoundError: [Errno 2] No such file or directory: 'data/about_me_of.txt'. makes sense, the code tries to open a file that's not there
+alfred knows the stuff from my file now, and source control doesn't show about_me.txt so it's not going on github, renamed the file to see what happens if it's missing: FileNotFoundError: [Errno 2] No such file or directory: 'data/about_me_of.txt'. makes sense, the code tries to open a file that's not there
 
 ### stuff i learned
 - public code, private data. same idea as .env for api keys
@@ -218,3 +216,58 @@ renamed the file to see what happens if it's missing: FileNotFoundError: [Errno 
 ### problems
 - nothing broke this time
 
+
+
+## Stage 5b: saving conversations (13/10/2026)
+
+goal: alfred forgets everything when i close the program because the messages list only exists while it runs. going to save the convo in a file after every answer and load it back when it starts
+
+### my prediction
+the first time it will tell me that there are 0 or X old messages, i will test it with a question about what i ate or something, close the program, and ask it what i ate. I think it will work. 
+
+
+### screenshots
+
+![p1 of main ](docs/screenshots/image-17.png)
+![p2 of main](docs/screenshots/image-18.png)
+![big error](docs/screenshots/image-19.png)
+![empty file](docs/screenshots/image-20.png)
+![non-existant history file](docs/screenshots/image-21.png)
+![working code using a functional history file](docs/screenshots/image-22.png)
+![memory testing](docs/screenshots/image-23.png)
+![mission failed successfully](docs/screenshots/image-24.png)
+![testing memory again](docs/screenshots/image-25.png)
+![ollama 3.1:8b test](docs/screenshots/image-26.png)
+![history with date](docs/screenshots/image-27.png)
+![new date update](docs/screenshots/image-28.png)
+![ollama test with new updates](docs/screenshots/image-29.png)
+
+### problems
+- got a JSONDecodeError on startup. history.json existed but was empty, and an empty file isn't valid json. my code only checked if the file existed, not if what's inside was ok
+- could happen for real: "w" mode empties the file as soon as it opens, so if the program stops right while saving you get an empty file
+- fixed it with try/except around json.load only. first version caught every error with a bare `except:`, bad idea because it would hide other bugs, now it only catches JSONDecodeError
+- also forgot the else at first so if the file didn't exist `history` was never created
+- after the fix it said "loaded 4 old messages" but alfred acted like he didn't remember anything. printed len(messages) before the loop and got 9 (system + 8 old ones) so the code was fine, he was getting the history
+- opened history.json: the burger message was there but also his answers saying "i don't remember anything". so after every restart he was rereading himself saying that and kept going with it. my questions were also super vague ("what was our last conversation?") which makes small models give the default "i don't keep memories" answer
+- deleted the file, told him what i ate, restarted and asked "what did i have for lunch?" and he got it
+- also he said my burger was "a bit of a rushed affair" which i never said, hallucination++
+- after fixing the prompt: "what did i eat?" works but "what was our last conversation about?" and he made up something about my daily schedule. finding one fact is easy for him but summarizing is harder so he guesses
+- also realized history.json is just one long list with no dates, so he can't even tell where the last conversation starts. he doesn't know when anything was said
+- history.json was one long list with no dates so alfred couldn't tell where the last convo started. now when the program starts and there's old history, it adds a system message with the date and time like "A new session has started : 13/10/2026 12:37"
+- typed `message` instead of `messages` so it was appending to a list that doesn't exist
+- put `print(...)` inside the content. print shows text but returns None, so the content would've been None. an f-string on its own is already text, no need for print
+- first date format had commas everywhere, looked like a list of numbers. switched to `%d/%m/%Y %H:%M`
+
+### result
+- told him what i ate, quit, restarted and he remembered. the file is just my convo saved as json
+- the date comes up at the start of every session, and is shown in the history.json file
+
+### stuff i learned
+- json = text format to save lists and dictionaries
+- save after every answer, not just on quit, otherwise a crash loses everything
+- try/except only around the line that can fail, and catch the specific error, not everything
+- when the code is right but the bot acts weird, check what it actually receives (print it) and what's in the data
+- change one thing at a time when testing, otherwise you don't know what fixed it
+
+### bigger model test
+- tried llama3.1:8b (8 billion parameters) instead of llama3.2 (3 billion). with 16gb of ram my mac handles it fine, answers come in like 3 seconds max changed only the model, same test as before so it's a fair comparison. the 8b one is just better overall, follows the rules and the convo better. keeping it also put the model name in a constant at the top OLLA so switching models is one line now
