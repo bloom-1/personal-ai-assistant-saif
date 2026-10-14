@@ -286,3 +286,24 @@ picked streamlit because it's pure python and has chat stuff built in. other opt
 - fixed it by switching the project to python 3.14: committed first to be safe, deleted .venv, made a new one with python3.14, reinstalled everything with `pip install -r requirements.txt`. my code didn't change at all
 - lesson: newest python isn't always the best choice, libraries need time to catch up. and read the dependency lines in the log, the answer wasn't in the big error at the bottom
 - after that alfred took ~5s instead of 3 for the first answer. not python's fault, ollama unloads the model from ram when it's not used for a while, so it has to load it again.
+
+
+### 6.1 first page
+made src/app.py, 2 lines: import streamlit and a title. you run it with `streamlit run` instead of `python`, it opens a page in the browser at localhost:8501. the terminal stays busy while the app runs, ctrl+c to stop it
+
+### screenshot
+![Alfred on the screen](docs/screenshots/image-30.png)
+![alfred code](docs/screenshots/image-31.png)
+![four clicks and display it](docs/screenshots/image-32.png)
+
+### problems
+- `streamlit: command not found`, the venv wasn't active (new terminal, new day). `source .venv/bin/activate` fixed it
+- a weird `DeltaGenerator(...)` line showed up in the terminal. i had a print around st.title, same mistake as the print inside content in 5B. st.title already shows the title on the page, no print needed
+- the terminal shows a "Network URL" = anyone on the same wifi can open my app. fine for now but i'll need to lock it to my mac only before connecting alfred
+
+### prediction 
+i think the counter will work and add up normaly 
+
+ result: stuck at 1 with a normal variable. every click reruns the whole file so `count = 0` runs again every time
+
+fix: st.session_state, a dictionary streamlit keeps alive between reruns. only set it to 0 if it's not in there yet, then add 1 directly to the value in session_state. a normal variable would just be a copy
