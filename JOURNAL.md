@@ -285,4 +285,4 @@ picked streamlit because it's pure python and has chat stuff built in. other opt
 - `pip install streamlit` crashed on pyarrow. in the log: `pyarrow!=25.0.0,<26` from streamlit, so streamlit only accepts pyarrow below 26. but only pyarrow 26 has a pre-built version for python 3.15. pip took 25.0.1, which only exists as source code (.tar.gz instead of .whl) for 3.15, tried to compile it and failed
 - fixed it by switching the project to python 3.14: committed first to be safe, deleted .venv, made a new one with python3.14, reinstalled everything with `pip install -r requirements.txt`. my code didn't change at all
 - lesson: newest python isn't always the best choice, libraries need time to catch up. and read the dependency lines in the log, the answer wasn't in the big error at the bottom
-- after that alfred took ~5s instead of 3 for the first answer. not python's fault, ollama unloads the model from ram when it's not used for a while, so it has to load it again
+- after that alfred took ~5s instead of 3 for the first answer. not python's fault, ollama unloads the model from ram when it's not used for a while, so it has to load it again.
