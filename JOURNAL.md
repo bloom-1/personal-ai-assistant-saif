@@ -363,32 +363,42 @@ goal: make src/alfred.py with all of alfred's logic in functions, so main.py and
 
 a function = a named block of code i can call whenever. `def` to create it, what goes in the () is its input, `return` is what it gives back. without return it gives back None (same as print)
 
-planned 4 functions:
+4 functions:
 - `load_history()` loads history.json and returns the list
 - `save_history(messages)` saves the convo to history.json
 - `start_messages()` builds the full messages list (system prompt + about me + history + session marker)
 - `ask_alfred(messages)` sends everything to ollama and returns the reply
 
-doing them one at a time and testing each one alone with a test file (src/test_alfred.py)
+did them one at a time and tested each one alone with a temporary test file (src/test_alfred.py)
 
 #### load_history()
-moved my loading block into a function. at first i wrote `return json.load(f)` directly, but then the "loaded X old messages" print after it never ran because return ends the function right away. and it used a `history` variable that didn't exist anymore. fixed it by storing the list in a variable first, then printing, then returning it
+moved my loading block into a function. at first i wrote `return json.load(f)` directly, but then the "loaded X old messages" print after it never ran because return ends the function right away. it also used a `history` variable that didn't exist anymore. fixed it by storing the list in a variable first, then printing, then returning it
 
 #### save_history(messages)
 moved my saving block into a function that takes the messages list as input. no return needed, it just writes the file
 
-tested it: loaded the history (26 messages), added a test message, saved it with a fake system message in front, loaded it again → 27. the fake system message got skipped by `[1:]` like it should. deleted the test message from history.json after
+tested it: loaded the history (26 messages), added a test message, saved it with a fake system message in front, loaded it again → 27. the fake system message got skipped by `[1:]` like it should
+
+#### start_messages()
+moved the about_me reading and full_prompt inside the function, now nothing runs outside functions in alfred.py except constants. it calls load_history() instead of copying the code, builds the messages list, adds the session marker and returns everything
+
+tested it: 29 items = 1 system + 27 history + 1 marker. 27 because the test message from the save_history test was still in there, removed it after
+
+#### ask_alfred(messages)
+sends the messages to ollama and returns just the reply text. one job only: no append, no saving, the caller decides what to do with the answer. tested it with fake messages so my real history wasn't touched
 
 ### screenshots 
 ![testing the alfred functions load_history](docs/screenshots/image-35.png)
 ![test message](docs/screenshots/image-36.png)
 ![alfred code ](docs/screenshots/image-38.png)
+![start messages test](docs/screenshots/image-39.png)
+![hello to you](docs/screenshots/image-40.png)
 
 #### problems
 - typed `python run src/test_alfred.py` out of habit from streamlit. python takes the file directly, only streamlit needs `run`. the error said it couldn't find a file called run
 - `save_history() takes 0 positional arguments but 1 was given`: forgot `messages` in the parentheses of the def, so the function didn't accept any input
 - `object of type 'function' has no len()`: wrote `load_history` without the (). without () you get the function itself, with () you run it and get what it returns
-- code at the top of alfred.py (outside functions) runs as soon as another file imports it. fine for constants, but reading about_me.txt should be inside a function, moving it into start_messages() next
-
-
-
+- code at the top of alfred.py (outside functions) runs as soon as another file imports it. had `full_prompt = ... + about_me` up there after moving the about_me reading into the function, so about_me didn't exist anymore. moved it inside start_messages()
+- in start_messages i called `load_history()` without storing the result so `history` didn't exist, used `full_date` before creating it (python runs top to bottom), and forgot `return messages` so it would've given back None
+- had comments like "FIXED: ..." in the code. comments should say what the code does, the history of changes is what git commits are for. removed them
+- ask_alfred test crashed with a ValidationError inside ollama. it said the `role` field was missing and showed my message with `roles` in it. typo in the test file, not in the function. the crash showed up in alfred.py but the mistake was in the data i passed in

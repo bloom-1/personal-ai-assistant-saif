@@ -1,9 +1,8 @@
-from alfred import load_history, save_history
+from alfred import ask_alfred
 
-history = load_history()
-print("Before: ", len(history))
+test_messages = [
+    {"role":"system", "content":"You are a test bot. Answer in 4 words max."},
+    {"role":"user", "content":"Say hello"}
+]
 
-history.append({"role":"user", "content":"test message"})
-save_history([{"role":"system", "content":"fake system"}] + history)
-
-print("after: ", len(load_history()))
+print(ask_alfred(test_messages))

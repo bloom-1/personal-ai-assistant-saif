@@ -3,6 +3,7 @@ import os  # to check if the file exists
 import ollama  # lets my code talk to the ollama app
 from datetime import datetime
 
+
 # alfred's personality (no personal info in here because this file is public)
 SYSTEM_PROMPT = """
 You're Alfred, my personal assistant / butler : polite, calm, loyal.
@@ -26,17 +27,7 @@ Rules:
 
 HISTORY_FILE = "data/history.json"  # where the convo gets saved (git ignores it)
 
-MODEL = "llama3.1:8b"  # FIXED: clearer name than OLLA
-
-# read my private info from a file that git ignores  # FIXED: comment moved here
-# "r" = read mode, utf-8 so french accents don't break
-# "with" closes the file automatically when done
-# (this will move into start_messages() in the next step)
-with open("data/about_me.txt", "r", encoding="utf-8") as f:
-    about_me = f.read()  # the whole file as one string
-
-# glue the personality and my info together into one system message
-full_prompt = SYSTEM_PROMPT + "\nAbout me:\n" + about_me
+MODEL = "llama3.1:8b" 
 
 
 def load_history():
@@ -44,12 +35,12 @@ def load_history():
     if os.path.exists(HISTORY_FILE):
         with open(HISTORY_FILE, "r", encoding="utf-8") as f:
             try:
-                history = json.load(f)  # FIXED: store it first instead of returning right away
+                history = json.load(f)  # turns json text into python list
             except json.decoder.JSONDecodeError:
                 print("History file is broken, starting with an empty history")
                 return []
-        print(f"Loaded {len(history)} old messages")  # FIXED: now this actually runs
-        return history  # FIXED: return after the print
+        print(f"Loaded {len(history)} old messages")  
+        return history  
     else:
         return []  # no history yet (first time convo)
 
@@ -58,3 +49,33 @@ def load_history():
 def save_history(messages):
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(messages[1:], f, ensure_ascii=False, indent=2)
+
+
+def start_messages():
+    with open("data/about_me.txt", "r", encoding="utf-8") as f:
+        about_me = f.read()  # the whole file as one string
+
+    full_prompt = SYSTEM_PROMPT + "\nAbout me:\n" + about_me
+
+    history = load_history()
+
+    messages = [{"role": "system", "content": full_prompt}] + history
+    
+    date_now = datetime.now()
+    full_date = date_now.strftime("%d/%m/%Y %H:%M") 
+
+    if len(history) != 0:
+        messages.append({"role": "system", "content": f"A new session has started : {full_date}"})
+
+    print(f"A new session has started : {full_date}")  # so i know it started
+
+    return messages
+
+def ask_alfred(messages):
+    # send everything to the model
+    response = ollama.chat(model=MODEL, messages=messages)
+
+    # get just the text of the answer
+    reply = response["message"]["content"]
+
+    return reply
