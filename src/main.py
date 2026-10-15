@@ -24,13 +24,13 @@ Rules:
 - if i am asking you to give me an information that you don't have, just say you don't have it instead of making things up 
 """
 
-# read my private info from a file that git ignores
-HISTORY_FILE = "data/history.json"
+HISTORY_FILE = "data/history.json"  # where the convo gets saved (git ignores it)
 
-OLLA = "llama3.1:8b"
+MODEL = "llama3.1:8b"
 
 # "r" = read mode, utf-8 so french accents don't break
 # "with" closes the file automatically when done
+# read my private info from a file that git ignores
 with open("data/about_me.txt", "r", encoding="utf-8") as f:
     about_me = f.read()  # the whole file as one string
 
@@ -44,7 +44,7 @@ if os.path.exists(HISTORY_FILE):
         try:
             history = json.load(f)  #turns the json text back into a python list
         except json.decoder.JSONDecodeError :
-            print("History file is broken, an empty list is created")
+            print("History file is broken, an empty history")
             history = []
     print(f"Loaded {len(history)} old messages")    #to check if it worked
 else :
@@ -74,7 +74,7 @@ while True:  # loops until i type quit
     messages.append({"role": "user", "content": user_input})
 
     # send everything to the model
-    response = ollama.chat(model=OLLA, messages=messages)
+    response = ollama.chat(model=MODEL, messages=messages)
 
     # get just the text of the answer
     reply = response["message"]["content"]
