@@ -416,3 +416,46 @@ main.py went from ~80 lines to 18. it only does the terminal stuff now (input, q
 
 #### result
 alfred did remember our last conversation and the count went up
+
+
+
+### Stage 6.6 : connect Alfred to the chat page.(16/10/2026)
+replaced the echo bot with the real alfred using the same functions as main.py: start_messages() for the starting list, ask_alfred() for the reply, save_history() after each answer
+
+#### prediction
+the history will be saved and we will continue where we left off
+
+#### problems
+- first version passed my text (user_inp) to ask_alfred and save_history instead of the whole messages list. ask_alfred would've sent a sentence instead of a convo, and save_history would've replaced my whole history.json with a piece of text. made a backup before testing just in case
+- was saving twice per exchange, once is enough, after alfred's reply is in the list
+- had the save inside the assistant bubble block, works but makes no sense, moved it out
+- the backup file wasn't in .gitignore so it would've gone on github.added it to .gitignore
+
+
+#### result
+- works. after cmd+r all the messages come back, even the ones from right before the refresh. session_state still resets on refresh, but start_messages() reloads history.json, and since i save after every answer the file is always up to date. 
+- checked the numbers: 29 loaded at first, +1 session marker, +4 for 2 exchanges = 34 after the refresh
+- the "loaded X old messages" shows in the terminal, not the page. print() always goes to the terminal where the streamlit server runs, only st.something draws on the page
+
+
+
+### screenshots
+![alfred answering in the browser](docs/screenshots/image-43.png)
+![terminal after refresh](docs/screenshots/image-44.png)
+
+
+
+### 6.7 making it look like mine (16/10/2026)
+wanted a darker black and blue look instead of the default red and orange
+
+- avatars: 🦇 for me and 🤵 for alfred. made an AVATARS dictionary at the top of app.py that maps each role to its emoji, so in the loop i just do `AVATARS[msg["role"]]`. if i want to change an emoji later it's one line
+- colors: added primaryColor, backgroundColor, secondaryBackgroundColor and textColor under [theme] in config.toml, with hex codes for dark navy and blue
+
+#### screenshots
+![more personalized streamlit version](docs/screenshots/image-45.png)
+![config.toml new](docs/screenshots/image-46.png)
+
+#### problems
+- added the avatars only to the 2 bubbles drawn after sending a message, but everything on screen still had the default red/orange icons. on every rerun the loop redraws all the bubbles, and the loop had no avatar. had to add it in all 3 places
+- passed the emoji without a name like `st.chat_message("user", "🦇")`. better to write `avatar="🦇"`, some inputs have to be named (keyword arguments)
+- the red border around the input box comes from primaryColor, changing it to blue fixed it
