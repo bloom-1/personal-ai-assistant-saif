@@ -393,6 +393,8 @@ sends the messages to ollama and returns just the reply text. one job only: no a
 ![alfred code ](docs/screenshots/image-38.png)
 ![start messages test](docs/screenshots/image-39.png)
 ![hello to you](docs/screenshots/image-40.png)
+![new main code](docs/screenshots/image-41.png)
+![new main test](docs/screenshots/image-42.png)
 
 #### problems
 - typed `python run src/test_alfred.py` out of habit from streamlit. python takes the file directly, only streamlit needs `run`. the error said it couldn't find a file called run
@@ -402,3 +404,15 @@ sends the messages to ollama and returns just the reply text. one job only: no a
 - in start_messages i called `load_history()` without storing the result so `history` didn't exist, used `full_date` before creating it (python runs top to bottom), and forgot `return messages` so it would've given back None
 - had comments like "FIXED: ..." in the code. comments should say what the code does, the history of changes is what git commits are for. removed them
 - ask_alfred test crashed with a ValidationError inside ollama. it said the `role` field was missing and showed my message with `roles` in it. typo in the test file, not in the function. the crash showed up in alfred.py but the mistake was in the data i passed in
+
+#### switching main.py to alfred.py
+main.py went from ~80 lines to 18. it only does the terminal stuff now (input, quit, print) and calls the functions from alfred.py for everything else. the appends stay in main.py because ask_alfred only returns the reply, main.py decides what to do with it
+
+#### problems (main.py switch)
+- imported load_history but main.py never uses it, start_messages already calls it. removed it
+- wrote the message with [ ] instead of { }. [ ] = list, { } = dictionary, a message is a dictionary
+- had "me" in quotes so it would've saved the word "me" every time instead of what i typed. variables go without quotes
+- called ask_alfred(messages) without storing the result, the reply just disappeared. same mistake as load_history in start_messages
+
+#### result
+alfred did remember our last conversation and the count went up
