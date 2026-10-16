@@ -31,7 +31,11 @@ MODEL = "llama3.1:8b"
 
 
 def load_history():
-    # to load a saved convo from before (if there's one)
+    """
+    - Load a saved convo from before (if there's one), else it creates a new history as an empty list if your file is corrupted / broken / doesn't exists
+    - Takes nothing as an input
+    - Returns the history that was previously saved
+    """
     if os.path.exists(HISTORY_FILE):
         with open(HISTORY_FILE, "r", encoding="utf-8") as f:
             try:
@@ -47,11 +51,21 @@ def load_history():
 
 
 def save_history(messages):
+    """
+    - Save the current messages / conversation and skips the system's message
+    - Takes a list called 'messages' as an input
+    - Doesn't return anything
+    """
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(messages[1:], f, ensure_ascii=False, indent=2)
 
 
 def start_messages():
+    """
+    - Builsd the starting messages: Alfred's personality + my info, the saved history, and a session marker
+    - Takes nothing as an input
+    - Returns messages (the whole conversation)
+    """
     with open("data/about_me.txt", "r", encoding="utf-8") as f:
         about_me = f.read()  # the whole file as one string
 
@@ -72,6 +86,11 @@ def start_messages():
     return messages
 
 def ask_alfred(messages):
+    """
+    - Sends to the AI model the whole conversation in the chat, for it to give a response back 
+    - Takes a list called 'messages' as an input
+    - Returns the reply given by the AI model
+    """
     # send everything to the model
     response = ollama.chat(model=MODEL, messages=messages)
 

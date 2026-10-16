@@ -459,3 +459,17 @@ wanted a darker black and blue look instead of the default red and orange
 - added the avatars only to the 2 bubbles drawn after sending a message, but everything on screen still had the default red/orange icons. on every rerun the loop redraws all the bubbles, and the loop had no avatar. had to add it in all 3 places
 - passed the emoji without a name like `st.chat_message("user", "🦇")`. better to write `avatar="🦇"`, some inputs have to be named (keyword arguments)
 - the red border around the input box comes from primaryColor, changing it to blue fixed it
+
+
+
+## Stage 7: finishing (16/10/2026)
+
+### 7.1 docstrings
+added a docstring to each function in alfred.py: what it does, what it takes, what it returns. it's a triple-quoted string right at the start of the function. vs code shows it when i hover over the function somewhere else, and help() prints it
+
+#### problems
+- first versions didn't match what the code actually does: said start_messages returns a welcome message (it returns the messages list), said ask_alfred sends the last message (it sends the whole convo), called messages a dictionary (it's a list of dictionaries), and said save_history skips a "welcome message" (it skips the system message)
+- lesson: a wrong docstring is worse than none, someone would trust it. had to read my own code again line by line to describe it right
+
+### screenshots
+![fct info](docs/screenshots/image-47.png)
