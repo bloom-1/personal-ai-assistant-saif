@@ -100,14 +100,14 @@ def start_messages():
     return messages
 
 
-def ask_alfred(messages):
+def ask_alfred(messages, model=MODEL):
     """
     - Sends to the AI model the whole conversation in the chat, for it to give a response back 
-    - Takes a list called 'messages' as an input
+    - Takes a list called 'messages' and optionally 'model' if given as an input
     - Returns the reply given by the AI model
     """
     # send everything to the model
-    response = ollama.chat(model=MODEL, messages=messages)
+    response = ollama.chat(model=model, messages=messages)
 
     # get just the text of the answer
     reply = response["message"]["content"]

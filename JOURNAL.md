@@ -516,3 +516,24 @@ the order matters: empty the file first, then rebuild. start_messages() loads th
 
 ### stage 7 done
 Alfred is "finished" for a first version: docstrings, clear button, cleanup, and a readme. the repo looks good. 
+
+
+
+## Feature: model picker (17/10/2026)
+added a dropdown in the sidebar to switch between llama3.1:8b and llama3.2 live
+
+learned about default values for function inputs: `def ask_alfred(messages, model=MODEL)`. if nobody gives a model it uses MODEL, so main.py didn't need any change. st.selectbox remembers its value between reruns by itself, no session_state needed
+
+#### prediction
+It will remember what was said in the conversation, because only the model was changed without leaving the conversation. 
+
+#### problems
+- added `model` as an input but kept using the MODEL constant inside ollama.chat, so the dropdown wouldn't have changed anything. MODEL and model are two different names
+- wrote "llama 3.2" with a space, the name has to match `ollama list` exactly
+- left my list called YOUR_LIST (placeholder name from a hint), renamed it MODELS
+
+#### result
+switched models in the middle of a convo and the new one remembered everything. the memory isn't in the model, it's in my messages list. every time, the whole list gets sent, so any model can pick up the convo
+
+### screenshots
+![model choice and sidebar](docs/screenshots/image-57.png)
