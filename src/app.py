@@ -1,5 +1,5 @@
 import streamlit as st
-from alfred import save_history, start_messages, ask_alfred, clear_history
+from alfred import save_history, start_messages, clear_history, stream_alfred
 
 AVATARS = {"user":"🦇", "assistant":"🤵"}
 MODELS = ["llama3.1:8b", "llama3.2"]
@@ -28,13 +28,9 @@ if user_input:
     with st.chat_message("user", avatar=AVATARS["user"]):      # draw a bubble for this message
         st.write(user_input)  
 
-    with st.spinner("Alfred is thinking..."):
-        reply = ask_alfred(st.session_state["messages"], model=ai_model)    #put the reply in a variable
-
-    st.session_state["messages"].append({"role":"assistant", "content":reply})   #add it to the list
     with st.chat_message("assistant", avatar=AVATARS["assistant"]):
-        st.write(reply)     # show alfred's reply
-    save_history(st.session_state["messages"])
+        reply = st.write_stream(stream_alfred(st.session_state["messages"], model=ai_model))  # shows it piece by piece, then gives back the full text
 
-
+    st.session_state["messages"].append({"role": "assistant", "content": reply})  # add it to the list
+    save_history(st.session_state["messages"]) #save the convo
 

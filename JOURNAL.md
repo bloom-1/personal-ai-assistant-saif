@@ -537,3 +537,29 @@ switched models in the middle of a convo and the new one remembered everything. 
 
 ### screenshots
 ![model choice and sidebar](docs/screenshots/image-57.png)
+
+
+
+## Feature: streaming (17/10/2026)
+goal: alfred's answer appears word by word while it's being written instead of all at once after a few seconds
+
+tested it alone first in test_stream.py with `stream=True`. ollama sends the answer in small pieces (chunks) and a for loop goes through them as they arrive. removed `end=""` from the print to see what happens: every piece went on its own line, and the pieces are "tokens" (a word, a number, a dot...). that's how the model actually writes, one token at a time
+
+learned about generators: a function with `yield` instead of `return` gives back values one by one, pausing between each
+
+### screenshots
+![stream test](docs/screenshots/image-58.png)
+
+#### in the app
+made a new function stream_alfred() in alfred.py: same as ask_alfred but with `stream=True`, and a loop that yields each piece instead of returning everything at the end. kept ask_alfred for main.py
+
+in app.py, st.write_stream() takes the generator, shows the pieces live and gives back the full text at the end so i can still save it. the bubble has to be opened first and the stream goes inside it
+
+#### problems
+- first wrote `print(yield(...))`, yield replaces print, it doesn't go inside it. the caller is the one that shows the pieces
+- docstring said "returns nothing", but it gives back pieces one by one
+- put write_stream outside the bubble and kept st.write(reply) inside it, so the answer would've shown twice (once without a bubble, once in it)
+- forgot to pass the model, the dropdown would've stopped working
+
+#### result
+it takes 2-3s to think and then shows the answer word by word. 

@@ -113,3 +113,18 @@ def ask_alfred(messages, model=MODEL):
     reply = response["message"]["content"]
 
     return reply
+
+
+def stream_alfred(messages, model=MODEL):
+    """
+    - Gives back alfred's reply piece by piece as it's being written
+    - Takes a list called 'messages' and optionally 'model' if given as an input
+    - Returns nothing
+    """
+    stream = ollama.chat(
+        model=model,
+        messages=messages,
+        stream=True,
+    )
+    for words in stream:
+        yield(words["message"]["content"])
