@@ -473,3 +473,43 @@ added a docstring to each function in alfred.py: what it does, what it takes, wh
 
 ### screenshots
 ![fct info](docs/screenshots/image-47.png)
+
+
+### 7.2 clear conversation button
+added a sidebar with a "clear conversation" button. when clicked: clear_history() empties history.json, start_messages() rebuilds a fresh list (personality + my info, no history), and st.rerun() redraws the page right away so the old bubbles disappear
+
+made a new function clear_history() in alfred.py instead of hacking save_history. it's the same as save_history but writes an empty list and takes no input
+
+the order matters: empty the file first, then rebuild. start_messages() loads the history file, so rebuilding first would load the old convo again
+
+#### problems
+- clear_history had `messages` in its parentheses even though it doesn't use it and app.py calls it with nothing, would've crashed with "missing 1 required positional argument"
+- first tried `load_history(st.session_state["messages"])` to rebuild. wrong function (only gives the history, not alfred's personality), wrong input (it takes nothing) and the result wasn't stored. start_messages() does the full job
+- the "no history" note had a hidden bug: save_history saves everything except item 0, so the note got saved too. next session alfred would've read in his own history that there's no history. changed it to "the very first conversation started on [date]. nothing was said before this point", it stays true forever wherever it ends up
+- lesson: anything that gets saved has to still make sense when it's reloaded later
+
+#### result
+[what alfred said after clearing]
+
+### screenshots
+![sidebar with clear conversation](docs/screenshots/image-48.png)
+![new sidebar with clear conversation](docs/screenshots/image-49.png)
+![history cleared](docs/screenshots/image-50.png)
+![halucination fix](docs/screenshots/image-51.png)
+![history fix](docs/screenshots/image-52.png)
+
+
+### 7.3 cleanup
+- fixed comments that didn't match the code anymore (bubbles, "save" used for things that don't save)
+- cleaned the system prompt: there was a line i pasted by mistake ("keep the anti-hallucination part") and the same rule written 3 times
+- renamed user_inp to user_input so app.py and main.py match
+- fixed typos and spacing (no space before `:`, 2 blank lines between functions)
+- made start_messages() handle a missing about_me.txt: if the file isn't there it prints a warning and uses an empty string instead of crashing. same if/else shape as load_history. also put the path in a constant ABOUT_ME_FILE like HISTORY_FILE
+- restored about_me.example.txt with `git checkout HEAD -- data/about_me.example.txt`, git can bring back any file from a commit
+
+#### problems
+- deleted about_me.example.txt thinking it was useless, but about_me.txt is gitignored so anyone cloning the repo would crash on start with no idea what the file should contain
+
+
+### screenshots
+![about me fix](docs/screenshots/image-53.png)
