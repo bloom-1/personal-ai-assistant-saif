@@ -29,6 +29,10 @@ MODEL = "llama3.1:8b"
 
 ABOUT_ME_FILE = "data/about_me.txt"
 
+MAX_HISTORY = 20
+
+KEEP_RECENT = 8
+
 def load_history():
     """
     - Load a saved convo from before (if there's one), else it creates a new history as an empty list if your file is corrupted / broken / doesn't exist
@@ -70,7 +74,7 @@ def clear_history():
 
 def start_messages():
     """
-    - Builds the starting messages: Alfred's personality + my info, the saved history (if there is any), and a session marker : either "new session started" or "very first conversation" if there's no history
+    - Builds the starting messages: Alfred's personality + my info, the saved history (if there is any), and a session marker : either "new session started" or "very first conversation" if there's no history. It also summarizes long histories. 
     - Takes nothing as an input
     - Returns messages (the whole conversation)
     """
@@ -84,7 +88,7 @@ def start_messages():
 
     full_prompt = SYSTEM_PROMPT + "\nAbout me:\n" + about_me
 
-    history = load_history()
+    history = summarize_history(load_history())
 
     messages = [{"role": "system", "content": full_prompt}] + history
     
@@ -95,7 +99,7 @@ def start_messages():
         messages.append({"role": "system", "content": f"A new session has started : {full_date}"})
     else:
         messages.append({"role": "system", "content": f"The very first conversation started on {full_date}. Nothing was said before this point."})
-    print(f"A new session has started :{full_date}")  # so i know it started
+    print(f"A new session has started:{full_date}")  # so i know it started
 
     return messages
 
@@ -128,3 +132,36 @@ def stream_alfred(messages, model=MODEL):
     )
     for words in stream:
         yield(words["message"]["content"])
+
+
+def messages_to_text(messages):
+    """
+    - Turns messages into text
+    - Takes a list called 'messages'
+    - Returns a string called 'text'
+    """
+    text = ""
+    for message in messages:
+        text +=f"{message["role"]}:{message["content"]}\n"
+    return text
+
+
+def summarize_history(history):
+    """
+    - Summarizes history of the conversation
+    - Takes 'history' as an input
+    - Returns the history unchanged if it's short, otherwise a summary message and the recent messages
+    """
+    if len(history) <= MAX_HISTORY:
+        return history
+    else:
+        old_text = history[:-KEEP_RECENT]
+        recent = history[-KEEP_RECENT:]
+        old_text = messages_to_text(old_text)
+        sum_hist = []
+        sum_hist.append({"role":"system", "content":"Summarize this conversation in a few short bullet points, no intro sentence. Keep only the facts that were actually stated in the conversation, don't add or correct anything, keep dates and numbers exactly as written"}) 
+        sum_hist.append({"role":"user", "content":old_text})
+        sum_hist = ask_alfred(sum_hist)
+
+        return [{"role":"system", "content":"Summary of earlier conversations: " + sum_hist}] + recent
+    

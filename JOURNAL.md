@@ -2,38 +2,32 @@
 
 ## Stage 0: Setup (12/10/2026)
 
-### What I wanted to do
-Get everything ready before writing any code: editor, Python, repo, venv.
+### what i wanted to do
+get everything ready before coding anything: editor, python, repo, venv
 
-### What I did
-- Picked Python over C. I practice C more than Python but for AI stuff Python is way easier (official Claude library, no malloc/pointers to deal with, web interface later with Streamlit, makes my life way easier)
-- Created the repo on GitHub with a README, the Python .gitignore and an MIT license, then cloned it
-- Made a ~/Projects folder in my home folder and moved the repo there. Didn't use Desktop because of iCloud sync and the venv has thousands of files
-- Upgraded Python (had 3.10.6, which is basically end of life) to 3.15
-- Created the venv and activated it
-- Set up the folders and a VS Code setting so screenshots I paste go straight into docs/screenshots
+### what i did
+- picked python over c. i practice c more but for ai stuff python is just easier, no malloc or pointers to deal with and there's libraries for everything
+- made the repo on github with a readme, the python .gitignore and an mit license, then cloned it
+- made a ~/Projects folder and moved the repo there. didn't put it on the desktop because of icloud sync, the venv has thousands of files
+- upgraded python (had 3.10.6, basically end of life) to 3.15
+- created the venv and activated it
+- set up the folders + a vs code setting so screenshots i paste go straight into docs/screenshots
 
 ### Screenshots
 ![setup0](docs/screenshots/image.png)
 ![ollama-implementation](docs/screenshots/image-1.png)
 
-### Problems I ran into
-**Cloned in the wrong place**
-I forgot to cd before cloning so the repo ended up in my home folder. Used `pwd` and `ls` to figure out where I was, then moved it with `mv` to my new folder/directory : Projects.
+### problems
+- forgot to cd before cloning so the repo ended up in my home folder. used `pwd` and `ls` to see where i was then moved it with `mv` to Projects
+- 3.10.6 still worked but it's getting dropped. upgraded before making the venv because the venv is stuck with the python version that created it
+- `code .` gave "command not found". the code command isn't installed by default on mac, you have to do cmd+shift+p > "Shell Command: Install 'code' command in PATH" in vs code
+- wasn't sure if docs/ and .vscode/ go inside .venv or not. they go outside at the root, .venv is just for libraries
 
-**Python version**
-3.10.6 still works but it's getting dropped. I upgraded before creating the venv because the venv is stuck with the Python version that made it, so doing it later would've meant redoing the venv.
+### what i learned
+- venv = separate box of libraries for each project so they don't mess with each other
+- .gitignore keeps the venv (and later secrets) off github
+- every new terminal starts in ~ with the venv off, so it's `cd` + `source .venv/bin/activate` every time
 
-**`code .` not working**
-Got "command not found". The `code` command isn't installed by default on Mac, you have to do Cmd+Shift+P > "Shell Command: Install 'code' command in PATH" in VS Code.
-
-**Where to put folders**
-Wasn't sure if docs/ and .vscode/ go inside .venv or not. Answer: outside, at the root. .venv is just for libraries and it's ignored by git anyway.
-
-### Stuff I learned
-- venv = a separate box of libraries for each project so they don't mess with each other
-- .gitignore keeps the venv and later my API key (.env) off GitHub
-- Every new terminal starts in ~ with the venv off, so I need `cd` + `source .venv/bin/activate` each time
 
 ## Stage 1: first message to the AI (12/10/2026)
 
@@ -169,21 +163,21 @@ About me:
 - changed "Bot:" to "Alfred:" in the print
 
 ### result
-(keep what's true, delete the rest)
-- he says who he is and calls me sir, works
-- kept it short and went longer when i asked, works
+- he says who he is and calls me sir
+- kept it short and went longer when i asked
 - answered in french when i wrote in french
 - made something up about what i ate
 - told me not to skip school
 
-about the debug count: list starts with 1 thing now (the system message) so it would go 3, 5, 7 instead of 2, 4, 6
+about the debug count: the list starts with 1 thing now (the system message) so it would go 3, 5, 7 instead of 2, 4, 6
 
 ### what i noticed
 llama3.2 is small so it doesn't follow every rule perfectly. the more precise the rule the better it follows it
 
 ### hallucination
-asked "what did i eat today" and he just made something up even though my rule says don't invent stuff. that's called a hallucination, the model predicts words that sound right, it doesn't actually know that it doesn't know changed the rule to be more specific: told him he only knows what i say in the chat and to say he doesn't know if i never told him after the change he said he didn't know.
+asked "what did i eat today" and he just made something up even though my rule says not to. that's called a hallucination, the model predicts words that sound right, it doesn't know that it doesn't know
 
+changed the rule to be more specific: told him he only knows what i say in the chat and to say he doesn't know if i never told him. after that he said he didn't know
 ### problems
 - first version of the system prompt was too clean and didn't sound like me, rewrote it my way but kept the precise rules like "3 sentences max"
 - asked "what did i eat today" and he made something up even though the rules said not to (more in the hallucination part)
@@ -281,10 +275,10 @@ goal: chat with alfred in a real web page instead of the terminal. using streaml
 picked streamlit because it's pure python and has chat stuff built in. other options were gradio, flask/fastapi with html/js (more control but takes time to code) or a telegram bot. might do a fastapi version later
 
 #### problems (setup)
-- `pip install streamlit` crashed on pyarrow. in the log: `pyarrow!=25.0.0,<26` from streamlit, so streamlit only accepts pyarrow below 26. but only pyarrow 26 has a pre-built version for python 3.15. pip took 25.0.1, which only exists as source code (.tar.gz instead of .whl) for 3.15, tried to compile it and failed
-- fixed it by switching the project to python 3.14: committed first to be safe, deleted .venv, made a new one with python3.14, reinstalled everything with `pip install -r requirements.txt`. my code didn't change at all
-- lesson: newest python isn't always the best choice, libraries need time to catch up. and read the dependency lines in the log, the answer wasn't in the big error at the bottom
-- after that alfred took ~5s instead of 3 for the first answer. not python's fault, ollama unloads the model from ram when it's not used for a while, so it has to load it again
+- `pip install streamlit` crashed on pyarrow. in the log there was `pyarrow!=25.0.0,<26` so streamlit only accepts pyarrow below 26, but only pyarrow 26 has a ready-made version for python 3.15. so pip took 25.0.1 as source code (.tar.gz instead of .whl), tried to compile it and failed
+- switched the project to python 3.14. committed first just in case, deleted .venv, made a new one with python3.14 and reinstalled everything with `pip install -r requirements.txt`. didn't touch my code at all
+- so the newest python isn't always the best idea, libraries need time to catch up. and the real answer was in the dependency lines, not the big error at the bottom
+- after that alfred took like 5s instead of 3 for the first answer. not python's fault, ollama unloads the model when it's not used for a while so it has to load it again
 
 ### 6.1 first page (14/10/2026)
 made src/app.py, 2 lines: import streamlit and a title. you run it with `streamlit run` instead of `python`, it opens a page in the browser at localhost:8501. the terminal stays busy while the app runs, ctrl+c to stop it
@@ -313,9 +307,9 @@ i think the counter will work and add up normally
 - also did `count += 1` on a copy, so the value in session_state never changed
 
 #### result
-stuck at 1 with a normal variable. every click reruns the whole file so `count = 0` runs again every time
+stuck at 1. every click reruns the whole file so `count = 0` runs again every single time
 
-fix: st.session_state, a dictionary streamlit keeps alive between reruns. only set it to 0 if it's not in there yet, then add 1 directly to the value in session_state. a normal variable would just be a copy
+st.session_state fixes it, it's like a dictionary that streamlit keeps alive between reruns. i only set count to 0 if it's not in there yet, then add 1 directly to the one in session_state. a normal variable is just a copy
 
 ### 6.3 chat page, no ai yet (15/10/2026)
 made the chat interface with an echo bot that just repeats what i type, so if something breaks i know it's the interface and not ollama
@@ -340,7 +334,7 @@ made the chat interface with an echo bot that just repeats what i type, so if so
 the messages won't be there because they are not stored anywhere
 
 #### result
-the messages dissapeared 
+the messages dissapeared, session_state survives reruns but a refresh = new session, so the list starts empty again. i'll need history.json like in main.py
 
 
 
@@ -359,33 +353,32 @@ the terminal showed a network url, so anyone on the same wifi (like at school) c
 
 
 ### 6.5 moving alfred's logic into its own file (15/10/2026)
-goal: make src/alfred.py with all of alfred's logic in functions, so main.py and app.py both use the same code instead of each having a copy. if i change the prompt in one file and forget the other, the two alfreds would act differently
+goal: put all of alfred's logic in src/alfred.py so main.py and app.py use the same code. otherwise i'd have the prompt in two places and if i change one and forget the other, the two alfreds act different
 
-a function = a named block of code i can call whenever. `def` to create it, what goes in the () is its input, `return` is what it gives back. without return it gives back None (same as print)
+made 4:
+- `load_history()` loads history.json and gives back the list
+- `save_history(messages)` saves the convo
+- `start_messages()` builds the whole starting list (prompt + about me + history + session marker)
+- `ask_alfred(messages)` sends everything to ollama and gives back the reply
 
-4 functions:
-- `load_history()` loads history.json and returns the list
-- `save_history(messages)` saves the convo to history.json
-- `start_messages()` builds the full messages list (system prompt + about me + history + session marker)
-- `ask_alfred(messages)` sends everything to ollama and returns the reply
-
-did them one at a time and tested each one alone with a temporary test file (src/test_alfred.py)
+did them one by one and tested each one alone with a temporary file (src/test_alfred.py)
 
 #### load_history()
-moved my loading block into a function. at first i wrote `return json.load(f)` directly, but then the "loaded X old messages" print after it never ran because return ends the function right away. it also used a `history` variable that didn't exist anymore. fixed it by storing the list in a variable first, then printing, then returning it
+first i wrote `return json.load(f)` directly, but then my "loaded X old messages" print never ran because return ends the function right there. it also used a `history` variable that didn't exist anymore. so now i store it in a variable, print, then return
 
 #### save_history(messages)
-moved my saving block into a function that takes the messages list as input. no return needed, it just writes the file
+just my saving block in a function, takes the list as input. no return, it only writes the file
 
-tested it: loaded the history (26 messages), added a test message, saved it with a fake system message in front, loaded it again → 27. the fake system message got skipped by `[1:]` like it should
+tested it: 26 messages, added a test message, saved with a fake system message in front, loaded again → 27. the fake system message got skipped by `[1:]` like it should
 
 #### start_messages()
-moved the about_me reading and full_prompt inside the function, now nothing runs outside functions in alfred.py except constants. it calls load_history() instead of copying the code, builds the messages list, adds the session marker and returns everything
+moved the about_me reading inside the function, so now nothing runs outside functions in alfred.py except the constants. it calls load_history() instead of copying the code
 
-tested it: 29 items = 1 system + 27 history + 1 marker. 27 because the test message from the save_history test was still in there, removed it after
+tested it: 29 = 1 system + 27 history + 1 marker. 27 because i forgot to delete the test message from before
 
 #### ask_alfred(messages)
-sends the messages to ollama and returns just the reply text. one job only: no append, no saving, the caller decides what to do with the answer. tested it with fake messages so my real history wasn't touched
+sends the list to ollama and gives back just the text. it doesn't append or save anything, main.py decides what to do with the answer. tested it with fake messages so my real history wasn't touched
+
 
 ### screenshots 
 ![testing the alfred functions load_history](docs/screenshots/image-35.png)
@@ -406,7 +399,7 @@ sends the messages to ollama and returns just the reply text. one job only: no a
 - ask_alfred test crashed with a ValidationError inside ollama. it said the `role` field was missing and showed my message with `roles` in it. typo in the test file, not in the function. the crash showed up in alfred.py but the mistake was in the data i passed in
 
 #### switching main.py to alfred.py
-main.py went from ~80 lines to 18. it only does the terminal stuff now (input, quit, print) and calls the functions from alfred.py for everything else. the appends stay in main.py because ask_alfred only returns the reply, main.py decides what to do with it
+main.py went from 80 lines to 18. it only does the terminal stuff now (input, quit, print) and calls alfred.py for the rest. the appends stay in main.py since ask_alfred only gives back the reply
 
 #### problems (main.py switch)
 - imported load_history but main.py never uses it, start_messages already calls it. removed it
@@ -426,17 +419,17 @@ replaced the echo bot with the real alfred using the same functions as main.py: 
 the history will be saved and we will continue where we left off
 
 #### problems
-- first version passed my text (user_inp) to ask_alfred and save_history instead of the whole messages list. ask_alfred would've sent a sentence instead of a convo, and save_history would've replaced my whole history.json with a piece of text. made a backup before testing just in case
-- was saving twice per exchange, once is enough, after alfred's reply is in the list
-- had the save inside the assistant bubble block, works but makes no sense, moved it out
-- the backup file wasn't in .gitignore so it would've gone on github.added it to .gitignore
-
+- first version gave my text (user_inp) to ask_alfred and save_history instead of the whole list. alfred would've gotten one sentence instead of the convo, and save_history would've replaced my whole history.json with a piece of text. made a backup before testing just in case
+- was saving twice per message, once is enough, after alfred's reply is in the list
+- the save was inside the assistant bubble, worked but made no sense so i moved it out
+- the backup file wasn't in .gitignore so it would've gone on github, added it
 
 #### result
-- works. after cmd+r all the messages come back, even the ones from right before the refresh. session_state still resets on refresh, but start_messages() reloads history.json, and since i save after every answer the file is always up to date. 
-- checked the numbers: 29 loaded at first, +1 session marker, +4 for 2 exchanges = 34 after the refresh
-- the "loaded X old messages" shows in the terminal, not the page. print() always goes to the terminal where the streamlit server runs, only st.something draws on the page
+works. after cmd+r everything comes back, even what i wrote right before refreshing. session_state still resets but start_messages() reloads history.json, and since it saves after every answer the file is always up to date
 
+checked the numbers: 29 at first, +1 session marker, +4 for 2 exchanges = 34 after refresh
+
+the "loaded X old messages" shows in the terminal, not the page. print always goes to the terminal where streamlit runs, only st.something shows on the page
 
 
 ### screenshots
@@ -446,50 +439,50 @@ the history will be saved and we will continue where we left off
 
 
 ### 6.7 making it look like mine (16/10/2026)
-wanted a darker black and blue look instead of the default red and orange
+the default red and orange looked ugly so i went darker, black and blue
 
-- avatars: 🦇 for me and 🤵 for alfred. made an AVATARS dictionary at the top of app.py that maps each role to its emoji, so in the loop i just do `AVATARS[msg["role"]]`. if i want to change an emoji later it's one line
-- colors: added primaryColor, backgroundColor, secondaryBackgroundColor and textColor under [theme] in config.toml, with hex codes for dark navy and blue
+- 🦇 for me and 🤵 for alfred. made an AVATARS dictionary at the top so in the loop i just do `AVATARS[msg["role"]]`. changing an emoji = one line
+- colors: added primaryColor, backgroundColor, secondaryBackgroundColor and textColor in config.toml with dark navy / blue hex codes
 
 #### screenshots
 ![more personalized streamlit version](docs/screenshots/image-45.png)
 ![config.toml new](docs/screenshots/image-46.png)
 
 #### problems
-- added the avatars only to the 2 bubbles drawn after sending a message, but everything on screen still had the default red/orange icons. on every rerun the loop redraws all the bubbles, and the loop had no avatar. had to add it in all 3 places
-- passed the emoji without a name like `st.chat_message("user", "🦇")`. better to write `avatar="🦇"`, some inputs have to be named (keyword arguments)
-- the red border around the input box comes from primaryColor, changing it to blue fixed it
-
+- put the avatars only on the 2 bubbles drawn after i send something, but the screen was still full of default icons. every rerun the loop redraws everything and the loop had no avatar, so i had to add it in all 3 places
+- passed the emoji without a name like `st.chat_message("user", "🦇")`, it's better with `avatar="🦇"`
+- the red border on the input box was primaryColor, made it blue
 
 
 ## Stage 7: finishing (16/10/2026)
 
 ### 7.1 docstrings
-added a docstring to each function in alfred.py: what it does, what it takes, what it returns. it's a triple-quoted string right at the start of the function. vs code shows it when i hover over the function somewhere else, and help() prints it
+added a docstring to every function in alfred.py, what it does, what it takes, what it gives back. it's a triple quote string right at the start of the function. when i hover over the function in vs code it shows up
 
 #### problems
-- first versions didn't match what the code actually does: said start_messages returns a welcome message (it returns the messages list), said ask_alfred sends the last message (it sends the whole convo), called messages a dictionary (it's a list of dictionaries), and said save_history skips a "welcome message" (it skips the system message)
-- lesson: a wrong docstring is worse than none, someone would trust it. had to read my own code again line by line to describe it right
+- my first versions were just wrong. said start_messages returns a welcome message (it returns the list), ask_alfred sends the last message (it sends the whole convo), messages is a dictionary (it's a list of dictionaries), save_history skips a "welcome message" (it's the system message)
+- a wrong docstring is worse than nothing since people trust it. had to reread my own code line by line to get it right
 
 ### screenshots
 ![fct info](docs/screenshots/image-47.png)
 
 
 ### 7.2 clear conversation button
-added a sidebar with a "clear conversation" button. when clicked: clear_history() empties history.json, start_messages() rebuilds a fresh list (personality + my info, no history), and st.rerun() redraws the page right away so the old bubbles disappear
+added a sidebar with a "clear conversation" button. click it and clear_history() empties history.json, start_messages() makes a fresh list (no history), and st.rerun() redraws the page so the old bubbles go away
 
-made a new function clear_history() in alfred.py instead of hacking save_history. it's the same as save_history but writes an empty list and takes no input
+made a new function clear_history() for it, basically save_history but it writes an empty list and takes nothing
 
-the order matters: empty the file first, then rebuild. start_messages() loads the history file, so rebuilding first would load the old convo again
+order matters: empty the file first, then rebuild. start_messages() loads the file so if i rebuild first i'd just get the old convo back
 
 #### problems
-- clear_history had `messages` in its parentheses even though it doesn't use it and app.py calls it with nothing, would've crashed with "missing 1 required positional argument"
-- first tried `load_history(st.session_state["messages"])` to rebuild. wrong function (only gives the history, not alfred's personality), wrong input (it takes nothing) and the result wasn't stored. start_messages() does the full job
-- the "no history" note had a hidden bug: save_history saves everything except item 0, so the note got saved too. next session alfred would've read in his own history that there's no history. changed it to "the very first conversation started on [date]. nothing was said before this point", it stays true forever wherever it ends up
-- lesson: anything that gets saved has to still make sense when it's reloaded later
+- clear_history had `messages` in its () even though it doesn't use it, and app.py calls it with nothing, so it would've crashed
+- tried `load_history(st.session_state["messages"])` to rebuild. wrong function (it only gives the history, not alfred's personality), wrong input (it takes nothing) and the result wasn't even stored. start_messages() does the whole thing
+- after clearing i asked what we talked about last time and he made something up. with no history he had no idea there was nothing before, and my prompt even says earlier messages are old convos. so in start_messages, if there's no history, i add a system message saying it's the first conversation
+- my first version of that note said "there is no history at all". but save_history saves it too, so next time alfred would read in his own history that there's no history 🙃 changed it to "the very first conversation started on [date]. nothing was said before this point", that stays true forever
+- anything that gets saved has to still make sense when it's loaded later
 
 #### result
-[what alfred said after clearing]
+after clearing he says there was nothing before. after chatting and refreshing he remembers the new stuff
 
 ### screenshots
 ![sidebar with clear conversation](docs/screenshots/image-48.png)
@@ -500,15 +493,16 @@ the order matters: empty the file first, then rebuild. start_messages() loads th
 
 
 ### 7.3 cleanup
-- fixed comments that didn't match the code anymore (bubbles, "save" used for things that don't save)
-- cleaned the system prompt: there was a line i pasted by mistake ("keep the anti-hallucination part") and the same rule written 3 times
+went through the whole repo before writing the readme:
+- fixed comments that didn't match the code anymore
+- cleaned the system prompt, there was a line i pasted by accident ("keep the anti-hallucination part") and the same rule written like 3 times
 - renamed user_inp to user_input so app.py and main.py match
-- fixed typos and spacing (no space before `:`, 2 blank lines between functions)
-- made start_messages() handle a missing about_me.txt: if the file isn't there it prints a warning and uses an empty string instead of crashing. same if/else shape as load_history. also put the path in a constant ABOUT_ME_FILE like HISTORY_FILE
-- restored about_me.example.txt with `git checkout HEAD -- data/about_me.example.txt`, git can bring back any file from a commit
+- typos and spacing (no space before `:`, 2 empty lines between functions)
+- start_messages() doesn't crash anymore if about_me.txt is missing, it prints a warning and uses an empty string. same if/else as load_history. put the path in a constant ABOUT_ME_FILE too
+- got about_me.example.txt back with `git checkout HEAD -- data/about_me.example.txt`, didn't know git could do that
 
 #### problems
-- deleted about_me.example.txt thinking it was useless, but about_me.txt is gitignored so anyone cloning the repo would crash on start with no idea what the file should contain
+- deleted about_me.example.txt because i thought it was useless. but about_me.txt is gitignored, so anyone cloning the repo would crash right away with no idea what to put in that file
 
 ### screenshots
 ![about me fix](docs/screenshots/image-53.png)
@@ -525,15 +519,15 @@ added a dropdown in the sidebar to switch between llama3.1:8b and llama3.2 live
 learned about default values for function inputs: `def ask_alfred(messages, model=MODEL)`. if nobody gives a model it uses MODEL, so main.py didn't need any change. st.selectbox remembers its value between reruns by itself, no session_state needed
 
 #### prediction
-It will remember what was said in the conversation, because only the model was changed without leaving the conversation. 
+he'll still remember the convo since i'm only changing the model, not the conversation
 
 #### problems
-- added `model` as an input but kept using the MODEL constant inside ollama.chat, so the dropdown wouldn't have changed anything. MODEL and model are two different names
-- wrote "llama 3.2" with a space, the name has to match `ollama list` exactly
-- left my list called YOUR_LIST (placeholder name from a hint), renamed it MODELS
+- added `model` as an input but still used MODEL inside ollama.chat, so the dropdown wouldn't have done anything. MODEL and model aren't the same thing
+- wrote "llama 3.2" with a space, it has to match `ollama list` exactly
+- my list was still called YOUR_LIST (the placeholder from a hint), renamed it MODELS
 
 #### result
-switched models in the middle of a convo and the new one remembered everything. the memory isn't in the model, it's in my messages list. every time, the whole list gets sent, so any model can pick up the convo
+switched models in the middle of a convo and the new one remembered everything. the memory isn't in the model at all, it's in my list. the whole list gets sent every time so any model can just pick it up
 
 ### screenshots
 ![model choice and sidebar](docs/screenshots/image-57.png)
@@ -541,19 +535,19 @@ switched models in the middle of a convo and the new one remembered everything. 
 
 
 ## Feature: streaming (17/10/2026)
-goal: alfred's answer appears word by word while it's being written instead of all at once after a few seconds
+goal: the answer shows up word by word while he writes it, instead of everything at once after a few seconds
 
-tested it alone first in test_stream.py with `stream=True`. ollama sends the answer in small pieces (chunks) and a for loop goes through them as they arrive. removed `end=""` from the print to see what happens: every piece went on its own line, and the pieces are "tokens" (a word, a number, a dot...). that's how the model actually writes, one token at a time
+tested it alone first in test_stream.py with `stream=True`. ollama sends the answer in small pieces and a for loop goes through them as they come. took out `end=""` to see what happens and every piece went on its own line. the pieces are tokens, sometimes a word, a number, a dot... that's literally how the model writes, one token at a time
 
-learned about generators: a function with `yield` instead of `return` gives back values one by one, pausing between each
+generators: a function with `yield` instead of `return` gives back stuff one piece at a time
 
 ### screenshots
 ![stream test](docs/screenshots/image-58.png)
 
 #### in the app
-made a new function stream_alfred() in alfred.py: same as ask_alfred but with `stream=True`, and a loop that yields each piece instead of returning everything at the end. kept ask_alfred for main.py
+new function stream_alfred() in alfred.py, same as ask_alfred but with `stream=True` and a loop that yields each piece. kept ask_alfred for main.py
 
-in app.py, st.write_stream() takes the generator, shows the pieces live and gives back the full text at the end so i can still save it. the bubble has to be opened first and the stream goes inside it
+in app.py st.write_stream() takes the generator, shows the pieces live and gives back the full text at the end so i can still save it. the bubble has to be opened first, then the stream goes inside it
 
 #### problems
 - first wrote `print(yield(...))`, yield replaces print, it doesn't go inside it. the caller is the one that shows the pieces
@@ -563,3 +557,43 @@ in app.py, st.write_stream() takes the generator, shows the pieces live and give
 
 #### result
 it takes 2-3s to think and then shows the answer word by word. 
+
+
+## Feature: long memory summary (17/10/2026)
+problem: the model can only read so much at once (the context window, in tokens). the history keeps growing and when it doesn't fit anymore the oldest part just gets cut off, no error, nothing. alfred would forget the start without saying it, and get slower too
+
+fix: when the history is longer than MAX_HISTORY, i take the old part (everything except the last KEEP_RECENT), turn it into text, ask the model to summarize it, and replace it with one system message with the summary. recent messages stay the same
+
+- messages_to_text() turns a list of messages into "role: content" lines
+- summarize_history() gives back the history unchanged if it's short, otherwise summary + recent messages
+- negative slicing: `history[-10:]` = last 10, `history[:-10]` = everything except the last 10
+
+#### tests
+- short history (8 messages, limit 30) → returned unchanged
+- lowered the limits to 6 and 2 to test the long case → 8 became 3 (1 summary + 2 recent)
+
+#### problems
+- reused the same variable for a list and then a string (old_text, sum_hist), confusing so i renamed them
+- first summary started with "here are a few short bullet points...", useless filler that would end up in his memory. told it: only bullet points, only stuff that was actually said, keep dates exactly as written
+- it also rewrote my date 17/10/2026 as 10/17/2026 (american format), so summaries can change details without you noticing
+- the summaries had wrong airdrop stuff (needs the same wifi, relaying through access points, aes-128-gcm). checked history.json and it was all in alfred's original answer, he made it up when i asked. the summary didn't invent anything, it just kept it. so a summary is only as true as the convo, and it turns old mistakes into permanent memory
+- that original answer sounded super confident and detailed, that's the dangerous kind of hallucination. a small local model is fine for chatting but not for technical facts, always check real docs
+- the 2nd summary dropped the "same wifi" thing, so summaries can also just lose stuff
+- the original answer also ignored the "3 sentences max" rule, small models drop rules when you ask for detail
+
+#### plugging it in
+in start_messages: `history = summarize_history(load_history())`. load_history runs first and its result goes straight into summarize_history
+
+didn't have to change save_history at all: it just saves messages[1:], and after a summary that list is shorter, so history.json gets overwritten with the short version. each function does one job so the new feature plugged in without touching the others
+
+### screenshots
+![messages to text](docs/screenshots/image-59.png)
+![summary test](docs/screenshots/image-60.png)
+![history json file update](docs/screenshots/image-61.png)
+
+#### choosing the limits
+didn't know what numbers to pick so i checked `ollama ps` while alfred was loaded. context is 4096 tokens, that's the max he can read at once. also saw he takes 5.3gb of ram and runs fully on the gpu, and the UNTIL column is when ollama unloads him, that's why the first answer after a break is slower
+
+a token is roughly 4 characters. my system prompt + about_me already take around 500, and he needs around 500 left to answer, so that leaves like 3000 for the history. went with MAX_HISTORY = 20 and KEEP_RECENT = 8 so there's some margin when he gives long answers
+
+counting messages isn't really precise though, one long answer from him weighs way more than a short message from me. counting characters would be better, maybe later
