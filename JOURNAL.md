@@ -510,6 +510,5 @@ the order matters: empty the file first, then rebuild. start_messages() loads th
 #### problems
 - deleted about_me.example.txt thinking it was useless, but about_me.txt is gitignored so anyone cloning the repo would crash on start with no idea what the file should contain
 
-
 ### screenshots
 ![about me fix](docs/screenshots/image-53.png)
