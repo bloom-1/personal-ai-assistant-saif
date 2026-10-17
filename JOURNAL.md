@@ -512,3 +512,7 @@ the order matters: empty the file first, then rebuild. start_messages() loads th
 
 ### screenshots
 ![about me fix](docs/screenshots/image-53.png)
+![Readme on github](docs/screenshots/image-56.png)
+
+### stage 7 done
+Alfred is "finished" for a first version: docstrings, clear button, cleanup, and a readme. the repo looks good. 
