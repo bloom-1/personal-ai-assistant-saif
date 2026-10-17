@@ -222,3 +222,4 @@ __marimo__/
 # my private stuff
 data/about_me.txt
 data/history.json
+data/history_backup.json
